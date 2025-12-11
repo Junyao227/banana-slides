@@ -19,7 +19,9 @@
 
 </p> 
 
-<b>一个基于nano banana pro🍌的原生AI PPT生成应用，支持想法/大纲/页面描述生成完整PPT演示文稿、文本图片链接自动提取、上传任意素材、口头提出修改，迈向真正的"Vibe PPT"</b>
+<b>一个基于nano banana pro🍌的原生AI PPT生成应用，支持想法/大纲/页面描述生成完整PPT演示文稿，自动提取附件图表、</b>
+
+<b> 上传任意素材、口头提出修改，迈向真正的"Vibe PPT" </b>
 
 <b>🎯 降低PPT制作门槛，让每个人都能快速创作出美观专业的演示文稿</b>
 
@@ -65,34 +67,14 @@
 
 | | |
 |:---:|:---:|
-| <img src="https://github.com/user-attachments/assets/1a63afc9-ad05-4755-8480-fc4aa64987f1" width="500" alt="案例1"> | <img src="https://github.com/user-attachments/assets/c64cd952-2cdf-4a92-8c34-0322cbf3de4e" width="500" alt="案例2"> |
-| **钱的演变：从贝壳到纸币的旅程** | **DeepSeek-V3.2技术展示** |
-| <img src="https://github.com/user-attachments/assets/d58ce3f7-bcec-451d-a3b9-ca3c16223644" width="500" alt="案例3"> | <img src="https://github.com/user-attachments/assets/383eb011-a167-4343-99eb-e1d0568830c7" width="500" alt="案例4"> |
-| **软件开发原则介绍** | **预制菜智能产线装备研发和产业化** |
+| <img src="https://github.com/user-attachments/assets/d58ce3f7-bcec-451d-a3b9-ca3c16223644" width="500" alt="案例3"> | <img src="https://github.com/user-attachments/assets/c64cd952-2cdf-4a92-8c34-0322cbf3de4e" width="500" alt="案例2"> |
+| **软件开发原则介绍** | **DeepSeek-V3.2技术展示** |
+| <img src="https://github.com/user-attachments/assets/383eb011-a167-4343-99eb-e1d0568830c7" width="500" alt="案例4"> | <img src="https://github.com/user-attachments/assets/1a63afc9-ad05-4755-8480-fc4aa64987f1" width="500" alt="案例1"> |
+| **预制菜智能产线装备研发和产业化** | **钱的演变：从贝壳到纸币的旅程** |
 
 </div>
 
 更多可见<a href="https://github.com/Anionex/banana-slides/issues/2" > 使用案例 </a>
-
-## 🗺️ 开发计划
-
-| 状态 | 里程碑 |
-| --- | --- |
-| ✅ 已完成 | 从想法、大纲、页面描述三种路径创建 PPT |
-| ✅ 已完成 | 解析文本中的 Markdown 格式图片 |
-| ✅ 已完成 | PPT 单页添加更多素材 |
-| ✅ 已完成 | PPT 单页框选区域Vibe口头编辑 |
-| ✅ 已完成 | 素材模块: 素材生成、上传等 |
-| ✅ 已完成 | 支持多种文件的上传+解析 |
-| ✅ 已完成 | 支持Vibe口头调整大纲和描述 |
-| 🔄 进行中 | 支持已生成图片的元素分割和进一步编辑（segment + inpaint） |
-| 🔄 进行中 | 网络搜索 |
-| 🔄 进行中 | Agent 模式 |
-| 🧭 规划中 | 优化前端加载速度 |
-| 🧭 规划中 | 在线播放功能 |
-| 🧭 规划中 | 简单的动画和页面切换效果 |
-| 🧭 规划中 | 多语种支持 |
-| 🧭 规划中 | 用户系统 |
 
 
 ## 🎯 功能介绍
@@ -118,14 +100,36 @@
 - **局部重绘**：对不满意的区域进行口头式修改（如"把这个图换成饼图"）。
 - **整页优化**：基于 nano banana pro🍌 生成高清、风格统一的页面。
 
-<img width="2880" height="1620" alt="image" src="https://github.com/user-attachments/assets/9d71b229-84d0-4ffd-9863-3e04b16e3567" />
+<img width="2000" height="1125" alt="image" src="https://github.com/user-attachments/assets/929ba24a-996c-4f6d-9ec6-818be6b08ea3" />
 
 
 ### 4. 开箱即用的格式导出
 - **多格式支持**：一键导出标准 **PPTX** 或 **PDF** 文件。
 - **完美适配**：默认 16:9 比例，排版无需二次调整，直接演示。
 
+<img width="1000" alt="image" src="https://github.com/user-attachments/assets/3e54bbba-88be-4f69-90a1-02e875c25420" />
 <img width="1748" height="538" alt="PPT与PDF导出" src="https://github.com/user-attachments/assets/647eb9b1-d0b6-42cb-a898-378ebe06c984" />
+
+
+## 🗺️ 开发计划
+
+| 状态 | 里程碑 |
+| --- | --- |
+| ✅ 已完成 | 从想法、大纲、页面描述三种路径创建 PPT |
+| ✅ 已完成 | 解析文本中的 Markdown 格式图片 |
+| ✅ 已完成 | PPT 单页添加更多素材 |
+| ✅ 已完成 | PPT 单页框选区域Vibe口头编辑 |
+| ✅ 已完成 | 素材模块: 素材生成、上传等 |
+| ✅ 已完成 | 支持多种文件的上传+解析 |
+| ✅ 已完成 | 支持Vibe口头调整大纲和描述 |
+| 🔄 进行中 | 支持已生成图片的元素分割和进一步编辑（segment + inpaint） |
+| 🔄 进行中 | 网络搜索 |
+| 🔄 进行中 | Agent 模式 |
+| 🧭 规划中 | 优化前端加载速度 |
+| 🧭 规划中 | 在线播放功能 |
+| 🧭 规划中 | 简单的动画和页面切换效果 |
+| 🧭 规划中 | 多语种支持 |
+| 🧭 规划中 | 用户系统 |
 
 ## 📦 使用方法
 
