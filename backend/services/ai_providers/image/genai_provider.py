@@ -10,6 +10,7 @@ from typing import Optional, List
 from google import genai
 from google.genai import types
 from PIL import Image
+from io import BytesIO
 from tenacity import retry, stop_after_attempt, wait_exponential
 from .base import ImageProvider
 from config import get_config
@@ -145,10 +146,20 @@ class GenAIImageProvider(ImageProvider):
                         logger.debug(f"Part {i}: Attempting to extract image...")
                         image = part.as_image()
                         if image:
-                            last_image = image.to_pil()
+                            # as_image() should return PIL Image directly (official SDK)
+                            # But proxy may return custom Image object, so we need fallbacks
+                            if isinstance(image, Image.Image):
+                                last_image = image
+                            elif hasattr(image, 'image_bytes') and image.image_bytes:
+                                last_image = Image.open(BytesIO(image.image_bytes))
+                            elif hasattr(image, '_pil_image') and image._pil_image:
+                                last_image = image._pil_image
+                            else:
+                                logger.warning(f"Part {i}: Image object type {type(image)} has no usable conversion method")
+                                continue
                             logger.debug(f"Successfully extracted image from part {i}")
                     except Exception as e:
-                        logger.debug(f"Part {i}: Failed to extract image - {str(e)}")
+                        logger.warning(f"Part {i}: Failed to extract image - {type(e).__name__}: {str(e)}")
             
             # Return the last image found (highest quality in thinking chain scenarios)
             if last_image:
