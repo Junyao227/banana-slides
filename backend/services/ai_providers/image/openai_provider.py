@@ -105,6 +105,36 @@ class OpenAIImageProvider(ImageProvider):
         
         return extra_body
 
+    def _extract_image_from_url(self, image_url: str) -> Optional[Image.Image]:
+        """
+        Extract image from a URL or data URL.
+
+        Args:
+            image_url: Image URL (http/https) or data:image/...;base64,...
+
+        Returns:
+            PIL Image if extraction succeeds, otherwise None
+        """
+        if not image_url:
+            return None
+
+        try:
+            if image_url.startswith('data:image'):
+                base64_data = image_url.split(',', 1)[1]
+                image_data = base64.b64decode(base64_data)
+                return Image.open(BytesIO(image_data))
+
+            if image_url.startswith('http://') or image_url.startswith('https://'):
+                resp = requests.get(image_url, timeout=30, stream=True)
+                resp.raise_for_status()
+                image = Image.open(BytesIO(resp.content))
+                image.load()
+                return image
+        except Exception as e:
+            logger.warning(f"Failed to extract image from url: {e}")
+
+        return None
+
     def generate_image(
         self,
         prompt: str,
@@ -191,6 +221,31 @@ class OpenAIImageProvider(ImageProvider):
                         image = Image.open(BytesIO(image_data))
                         logger.debug(f"Successfully extracted image: {image.size}, {image.mode}")
                         return image
+
+            # Try OpenAI-compatible image field: message.images
+            # Example:
+            # {"message": {"content": null, "images": [{"type":"image_url","image_url":{"url":"data:image/jpeg;base64,..."}]}}
+            if hasattr(message, 'images') and message.images:
+                for part in message.images:
+                    image_url = ""
+
+                    if isinstance(part, dict):
+                        image_url_obj = part.get('image_url', {})
+                        if isinstance(image_url_obj, dict):
+                            image_url = image_url_obj.get('url', '')
+                        else:
+                            image_url = getattr(image_url_obj, 'url', '')
+                    else:
+                        image_url_obj = getattr(part, 'image_url', None)
+                        if isinstance(image_url_obj, dict):
+                            image_url = image_url_obj.get('url', '')
+                        else:
+                            image_url = getattr(image_url_obj, 'url', '')
+
+                    image = self._extract_image_from_url(image_url)
+                    if image:
+                        logger.debug(f"Successfully extracted image from message.images: {image.size}, {image.mode}")
+                        return image
             
             # Try standard OpenAI content format (list of content parts)
             if hasattr(message, 'content') and message.content:
@@ -201,11 +256,8 @@ class OpenAIImageProvider(ImageProvider):
                             # Handle image_url type
                             if part.get('type') == 'image_url':
                                 image_url = part.get('image_url', {}).get('url', '')
-                                if image_url.startswith('data:image'):
-                                    # Extract base64 data from data URL
-                                    base64_data = image_url.split(',', 1)[1]
-                                    image_data = base64.b64decode(base64_data)
-                                    image = Image.open(BytesIO(image_data))
+                                image = self._extract_image_from_url(image_url)
+                                if image:
                                     logger.debug(f"Successfully extracted image from content: {image.size}, {image.mode}")
                                     return image
                             # Handle text type
@@ -221,10 +273,8 @@ class OpenAIImageProvider(ImageProvider):
                                     url = image_url.get('url', '')
                                 else:
                                     url = getattr(image_url, 'url', '')
-                                if url.startswith('data:image'):
-                                    base64_data = url.split(',', 1)[1]
-                                    image_data = base64.b64decode(base64_data)
-                                    image = Image.open(BytesIO(image_data))
+                                image = self._extract_image_from_url(url)
+                                if image:
                                     logger.debug(f"Successfully extracted image from content object: {image.size}, {image.mode}")
                                     return image
                 # If content is a string, try to extract image from it
@@ -238,15 +288,10 @@ class OpenAIImageProvider(ImageProvider):
                     if markdown_matches:
                         image_url = markdown_matches[0]  # Use the first image URL found
                         logger.debug(f"Found Markdown image URL: {image_url}")
-                        try:
-                            response = requests.get(image_url, timeout=30, stream=True)
-                            response.raise_for_status()
-                            image = Image.open(BytesIO(response.content))
-                            image.load()  # Ensure image is fully loaded
+                        image = self._extract_image_from_url(image_url)
+                        if image:
                             logger.debug(f"Successfully downloaded image from Markdown URL: {image.size}, {image.mode}")
                             return image
-                        except Exception as download_error:
-                            logger.warning(f"Failed to download image from Markdown URL: {download_error}")
                     
                     # Try to extract plain URL (not in Markdown format)
                     url_pattern = r'(https?://[^\s\)\]]+\.(?:png|jpg|jpeg|gif|webp|bmp)(?:\?[^\s\)\]]*)?)'
@@ -254,15 +299,10 @@ class OpenAIImageProvider(ImageProvider):
                     if url_matches:
                         image_url = url_matches[0]
                         logger.debug(f"Found plain image URL: {image_url}")
-                        try:
-                            response = requests.get(image_url, timeout=30, stream=True)
-                            response.raise_for_status()
-                            image = Image.open(BytesIO(response.content))
-                            image.load()
+                        image = self._extract_image_from_url(image_url)
+                        if image:
                             logger.debug(f"Successfully downloaded image from plain URL: {image.size}, {image.mode}")
                             return image
-                        except Exception as download_error:
-                            logger.warning(f"Failed to download image from plain URL: {download_error}")
                     
                     # Try to extract base64 data URL from string
                     base64_pattern = r'data:image/[^;]+;base64,([A-Za-z0-9+/=]+)'
